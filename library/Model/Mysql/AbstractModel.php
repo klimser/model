@@ -207,7 +207,7 @@ class AbstractModel extends \Model\AbstractModel
 
                             if (!$_result->isError()) {
                                 $linkMethod = $rel['link_method'];
-                                $this->$linkMethod(array($id), $_result->getResult(), $cond->isAppendLink());
+                                $this->$linkMethod(array($id), $_result->getResult(), $cond->getChild($foreignEntityName)->isAppendLink());
                             }
                         }
                     }
