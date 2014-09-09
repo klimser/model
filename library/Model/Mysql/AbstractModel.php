@@ -255,7 +255,7 @@ class AbstractModel extends \Model\AbstractModel
 
                             if (isset($rel['link_table']) && $_result->isValid()) {
                                 $linkMethod = $rel['link_method'];
-                                $this->$linkMethod(array($id), $_result->getResult(), $cond->isAppendLink());
+                                $this->$linkMethod(array($id), $_result->getResult(), $cond->getChild($foreignEntityName . '_collection')->isAppendLink());
                             }
                         }
                     }
