@@ -474,7 +474,10 @@ class Column extends ArrayObject
      */
     public function isUnsigned()
     {
-        return (strpos($this->getColumnType(), 'unsigned') !== FALSE);
+        if (in_array($this->getColumnType(), array('enum', 'set'))) {
+            return false;
+        }
+        return (strpos($this['column_type'], 'unsigned') !== FALSE);
     }
 
     /**
