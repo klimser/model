@@ -753,43 +753,54 @@ class Column extends ArrayObject
                 if ($this->isUnsigned()) {
                     $min = 0;
                     $max = 255;
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
                 } else {
                     $min = -128;
                     $max = 128;
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^-?[\d]*$/'));
                 }
-                $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
                 $this->addValidator('\Zend\Validator\Between', array('min' => $min, 'max' => $max, 'inclusive' => true));
                 break;
             case 'smallint':
                 if ($this->isUnsigned()) {
                     $min = 0;
                     $max = 65535;
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
                 } else {
                     $min = -32768;
                     $max = 32768;
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^-?[\d]*$/'));
                 }
-                $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
                 $this->addValidator('\Zend\Validator\Between', array('min' => $min, 'max' => $max, 'inclusive' => true));
                 break;
             case 'mediumint':
                 if ($this->isUnsigned()) {
                     $min = 0;
                     $max = 16777215;
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
                 } else {
                     $min = -8388607;
                     $max = 8388607;
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^-?[\d]*$/'));
                 }
-                $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
                 $this->addValidator('\Zend\Validator\Between', array('min' => $min, 'max' => $max, 'inclusive' => true));
                 break;
             case 'int':
             case 'bigint':
-                $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
+                if ($this->isUnsigned()) {
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d]*$/'));
+                } else {
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^-?[\d]*$/'));
+                }
                 break;
             case 'float':
             case 'decimal':
             case 'double':
-                $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d\,\.]*$/'));
+                if ($this->isUnsigned()) {
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^[\d\,\.]*$/'));
+                } else {
+                    $this->addValidator('\Zend\Validator\Regex', array('pattern' => '/^-?[\d\,\.]*$/'));
+                }
                 break;
         }
 
