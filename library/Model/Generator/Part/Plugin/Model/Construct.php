@@ -41,7 +41,7 @@ class Construct extends AbstractModel
 
         $method->setBody(<<<EOS
 \$this->setName('{$tableName}');
-\$this->setDbAdapterName('db');
+\$this->setDbAdapterName('{$part->getTable()->getSchema()->getDbAdapterName()}');
 parent::__construct();
 EOS
         );

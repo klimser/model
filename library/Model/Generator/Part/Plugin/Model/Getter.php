@@ -102,7 +102,7 @@ class Getter extends AbstractModel
                 if ($link) {
                     $foreignTableNameAsCamelCase = $link->getForeignTable()->getNameAsCamelCase();
                     $prepare .= <<<EOS
-\${$indexColumnNameAsVar}Ids = {$foreignTableNameAsCamelCase}Model::getInstance()->getIdsFromMixed(\${$indexColumnNameAsVar});
+\${$indexColumnNameAsVar}Ids = {$foreignTableNameAsCamelCase}Model::getInstance()->getIdsFromMixed(\${$indexColumnNameAsVar}, '{$column->getTypePrepareCallback()}');
 
 EOS;
 
