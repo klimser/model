@@ -265,7 +265,11 @@ class AbstractEntity extends \ArrayObject implements EntityInterface
         foreach($resultArray as $key => $value) {
             if ($key[0] == '_') {
                 if (isset($this[$key])) {
-                    $resultArray[$key] = $this[$key]->toArray();
+                    if ($this[$key] instanceof EntityInterface) {
+                        $resultArray[$key] = $this[$key]->toArray();
+                    } else {
+                        $resultArray[$key] = $this[$key];
+                    }
                 } else {
                     unset($resultArray[$key]);
                 }
