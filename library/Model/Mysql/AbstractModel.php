@@ -60,7 +60,7 @@ class AbstractModel extends \Model\AbstractModel
         $tableName = $this->getRawName();
         $result = new Result();
         $data = $this->prepareData($data);
-        $_data = array();
+        $relatedData = array();
 
         if (empty($data)) {
             $result->addChild('general', $this->getGeneralErrorResult("Import {$tableName} failed; Import data is empty", "import_{$tableName}_failed"));
@@ -92,7 +92,7 @@ class AbstractModel extends \Model\AbstractModel
                 /**
                  * Вложенная сущность сушествует
                  */
-                $_data[$localColumnName] = $data[$localColumnName];
+                $relatedData[$localColumnName] = $data[$localColumnName];
             } elseif ($cascadeAllowed && isset($data['_' . $foreignEntityName]))  {
                 /**
                  * Здесь мы проверяем наличие вложенной сущности,
@@ -112,7 +112,7 @@ class AbstractModel extends \Model\AbstractModel
                 }
 
                 if ($_result->isValid()) {
-                    $_data[$localColumnName] = $data[$localColumnName] = $_result->getResult();
+                    $relatedData[$localColumnName] = $data[$localColumnName] = $_result->getResult();
                 }
 
                 unset($data['_' . $foreignEntityName]);
@@ -143,11 +143,11 @@ class AbstractModel extends \Model\AbstractModel
             $_cond->where(array('`' . $this->getRawName() . '`.`id`' => $id));
             $_result = $this->update($data, $_cond);
             $result->setValidator($_result->getValidator());
-        } elseif (!empty($_data) && $cond->isCascadeAllowed()) {
+        } elseif (!empty($relatedData) && $cond->isCascadeAllowed()) {
             // Если не разрешено обновление, и разрешен каскад, то обновляем только связи
             $_cond = clone $cond;
             $_cond->where(array('`' . $this->getRawName() . '`.`id`' => $id));
-            $_result = $this->update($data, $_cond);
+            $_result = $this->update($relatedData, $_cond);
 
             $result->setValidator($_result->getValidator());
         }
