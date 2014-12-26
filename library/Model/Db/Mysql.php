@@ -134,10 +134,26 @@ class Mysql
             $start = microtime(true);
         }
 
-        $stmt = $this->pdo->prepare($sql);
+        $sql = $this->prepareSqlBindArrays($sql, $bindParams);
+
         $bindParams = $this->prepareBindParams($bindParams);
 
-        $bindParams ? $stmt->execute($bindParams) : $stmt->execute();
+        $stmt = $this->pdo->prepare($sql);
+
+
+        if (!empty($bindParams)) {
+            foreach ($bindParams as $paramName => $paramValue) {
+                if (is_int($paramValue)) {
+                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
+                } elseif (is_null($paramValue)) {
+                    $stmt->bindValue($paramName, 'NULL', PDO::PARAM_NULL);
+                } else {
+                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_STR);
+                }
+            }
+        }
+
+        $stmt->execute();
 
         if ($this->profilerEnable) {
             $this->profiler[] = array(
@@ -158,6 +174,32 @@ class Mysql
         //$sql = str_replace(array_keys($bindParams), array_values($bindParams), $sql);
         $sql = strtr($sql, $bindParams);
 
+        return $sql;
+    }
+
+    /**
+     * @param string $sql
+     * @param array $bindParams
+     * @return mixed|string
+     */
+    public function prepareSqlBindArrays($sql, &$bindParams)
+    {
+        foreach ($bindParams as $paramName => $paramValue) {
+            if (is_string($paramName) && is_array($paramValue)) {
+                $isIntArray = true;
+                foreach ($paramValue as $arrayElement) {
+                    if (!is_int($arrayElement)) {
+                        $isIntArray = false;
+                    }
+                }
+                if (!$isIntArray) {
+                    $paramValue = array_map(array($this, '_quote'), $paramValue);
+                }
+                $paramValue = implode(',', $paramValue);
+                $sql = str_replace($paramName, $paramValue, $sql);
+                unset($bindParams[$paramName]);
+            }
+        }
         return $sql;
     }
 
@@ -340,27 +382,25 @@ class Mysql
         $sql = rtrim($sql, ", ");
         $sql .= " WHERE " . $where;
 
+        $sql = $this->prepareSqlBindArrays($sql, $bind);
+
+        $bind = $this->prepareBindParams($bind);
+
         /** @var $stmt \PDOStatement */
         $stmt = $this->pdo->prepare($sql);
 
         if (!empty($bind)) {
             foreach ($bind as $paramName => $paramValue) {
-                if ($paramValue === null) {
+                if (is_int($paramValue) || is_null($paramValue)) {
                     $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
-                    unset($bind[$paramName]);
+                } else {
+                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_STR);
                 }
             }
         }
 
-        $bind = $this->prepareBindParams($bind);
-
-        if (!empty($bind)) {
-            foreach ($bind as $paramName => $paramValue) {
-                $stmt->bindValue($paramName, $paramValue, PDO::PARAM_STR);
-            }
-        }
-
         return $stmt->execute();
+
     }
 
     /**
