@@ -87,6 +87,7 @@ class Mysql
             $defaultParams[$k] = $v;
         }
 
+
         $this->pdo = new \PDO($this->dsn, $this->user, $this->password, $defaultParams);
         return $this;
     }
