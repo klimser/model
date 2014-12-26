@@ -183,7 +183,7 @@ class Mysql
                     }
                     $paramValue = implode(',', $paramValue);
                     break;
-                case 'int':
+                case 'integer':
                     $paramValue = (int)$paramValue;
                     break;
                 case 'boolean':
