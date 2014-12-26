@@ -87,7 +87,6 @@ class Mysql
             $defaultParams[$k] = $v;
         }
 
-
         $this->pdo = new \PDO($this->dsn, $this->user, $this->password, $defaultParams);
         return $this;
     }
@@ -135,26 +134,10 @@ class Mysql
             $start = microtime(true);
         }
 
-        $sql = $this->prepareSqlBindArrays($sql, $bindParams);
-
+        $stmt = $this->pdo->prepare($sql);
         $bindParams = $this->prepareBindParams($bindParams);
 
-        $stmt = $this->pdo->prepare($sql);
-
-
-        if (!empty($bindParams)) {
-            foreach ($bindParams as $paramName => $paramValue) {
-                if (is_int($paramValue)) {
-                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
-                } elseif (is_null($paramValue)) {
-                    $stmt->bindValue($paramName, 'NULL', PDO::PARAM_NULL);
-                } else {
-                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_STR);
-                }
-            }
-        }
-
-        $stmt->execute();
+        $bindParams ? $stmt->execute($bindParams) : $stmt->execute();
 
         if ($this->profilerEnable) {
             $this->profiler[] = array(
@@ -178,32 +161,6 @@ class Mysql
         return $sql;
     }
 
-    /**
-     * @param string $sql
-     * @param array $bindParams
-     * @return mixed|string
-     */
-    public function prepareSqlBindArrays($sql, &$bindParams)
-    {
-        foreach ($bindParams as $paramName => $paramValue) {
-            if (is_string($paramName) && is_array($paramValue)) {
-                $isIntArray = true;
-                foreach ($paramValue as $arrayElement) {
-                    if (!is_int($arrayElement)) {
-                        $isIntArray = false;
-                    }
-                }
-                if (!$isIntArray) {
-                    $paramValue = array_map(array($this, '_quote'), $paramValue);
-                }
-                $paramValue = implode(',', $paramValue);
-                $sql = str_replace($paramName, $paramValue, $sql);
-                unset($bindParams[$paramName]);
-            }
-        }
-        return $sql;
-    }
-
     public function prepareBindParams(array $bindParams = null, $addColon = false)
     {
         $this->connect();
@@ -215,18 +172,9 @@ class Mysql
         foreach ($bindParams as $k => &$paramValue) {
             switch (\getType($paramValue)) {
                 case 'array':
-                    $isIntArray = true;
-                    foreach ($paramValue as $key => $arrayElement) {
-                        if (!is_int($arrayElement)) {
-                            $isIntArray = false;
-                        }
-                    }
-                    if (!$isIntArray) {
-                        $paramValue = array_map(array($this, '_quote'), $paramValue);
-                    }
-                    $paramValue = implode(',', $paramValue);
+                    $paramValue = implode(',', array_map(array($this, '_quote'), $paramValue));
                     break;
-                case 'integer':
+                case 'int':
                     $paramValue = (int)$paramValue;
                     break;
                 case 'boolean':
@@ -383,25 +331,27 @@ class Mysql
         $sql = rtrim($sql, ", ");
         $sql .= " WHERE " . $where;
 
-        $sql = $this->prepareSqlBindArrays($sql, $bind);
-
-        $bind = $this->prepareBindParams($bind);
-
         /** @var $stmt \PDOStatement */
         $stmt = $this->pdo->prepare($sql);
 
         if (!empty($bind)) {
             foreach ($bind as $paramName => $paramValue) {
-                if (is_int($paramValue) || is_null($paramValue)) {
+                if ($paramValue === null) {
                     $stmt->bindValue($paramName, $paramValue, PDO::PARAM_INT);
-                } else {
-                    $stmt->bindValue($paramName, $paramValue, PDO::PARAM_STR);
+                    unset($bind[$paramName]);
                 }
             }
         }
 
-        return $stmt->execute();
+        $bind = $this->prepareBindParams($bind);
 
+        if (!empty($bind)) {
+            foreach ($bind as $paramName => $paramValue) {
+                $stmt->bindValue($paramName, $paramValue, PDO::PARAM_STR);
+            }
+        }
+
+        return $stmt->execute();
     }
 
     /**
