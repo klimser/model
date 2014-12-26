@@ -172,7 +172,16 @@ class Mysql
         foreach ($bindParams as $k => &$paramValue) {
             switch (\getType($paramValue)) {
                 case 'array':
-                    $paramValue = implode(',', array_map(array($this, '_quote'), $paramValue));
+                    $isIntArray = true;
+                    foreach ($paramValue as $key => $arrayElement) {
+                        if (!is_int($arrayElement)) {
+                            $isIntArray = false;
+                        }
+                    }
+                    if (!$isIntArray) {
+                        $paramValue = array_map(array($this, '_quote'), $paramValue);
+                    }
+                    $paramValue = implode(',', $paramValue);
                     break;
                 case 'int':
                     $paramValue = (int)$paramValue;
