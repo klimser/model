@@ -52,7 +52,7 @@ class InitFilterRules extends AbstractModel
             }
 
             if ($column->isNullable()) {
-                $template .= "        Filter::getFilterInstance('\\Zend\\Filter\\Null'),\n";
+                $template .= "        Filter::getFilterInstance('\\Zend\\Filter\\ToNull'),\n";
             }
 
             $template = rtrim($template, "\r\n, ") . "\n    ),";
