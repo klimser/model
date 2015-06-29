@@ -69,7 +69,7 @@ class Log
 	protected static function _getLogAdapter()
 	{
 		if (empty(self::$_logAdapter)) {
-			$writer = new \Zend\Log\Writer\Null();
+			$writer = new \Zend\Log\Writer\Noop();
 			self::$_logAdapter = new \Zend\Log\Logger();
             self::$_logAdapter->addWriter($writer);
 		}
