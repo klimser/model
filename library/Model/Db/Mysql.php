@@ -748,4 +748,34 @@ class Mysql
     {
         return $this->_quoteIdentifierAs($ident, $alias, $auto);
     }
+
+    /**
+     * Begin transaction
+     *
+     * @return bool
+     */
+    public function beginTransaction()
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    /**
+     * Commit
+     *
+     * @return bool
+     */
+    public function commitTransaction()
+    {
+        return $this->pdo->commit();
+    }
+
+    /**
+     * Rollback
+     *
+     * @return bool
+     */
+    public function rollbackTransaction()
+    {
+        return $this->pdo->rollBack();
+    }
 }
