@@ -676,9 +676,9 @@ $filteredInputData = SomeModel::getInstance()->filterOnAdd($inputData);
     <td>Оставляет символы разрешенные для значений enum-полей</td>
 </tr>
 <tr>
-    <td>App\Filter\Float</td>
+    <td>App\Filter\FloatVal</td>
     <td>нет</td>
-    <td>Приводит значение к Float</td>
+    <td>Приводит значение к float</td>
 </tr>
 <tr>
     <td>App\Filter\Hash</td>

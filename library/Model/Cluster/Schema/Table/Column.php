@@ -659,7 +659,7 @@ class Column extends ArrayObject
             case 'float':
             case 'decimal':
             case 'double':
-                $this->addFilter('\App\Filter\Float');
+                $this->addFilter('\App\Filter\FloatVal');
                 break;
         }
 
