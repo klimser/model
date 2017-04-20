@@ -426,7 +426,7 @@ $filteredInputData = SomeModel::getInstance()->filterOnAdd($inputData);
         - Число без плавающей точки<br>
     </td>
     <td>
-        App\Filter\Int<br/>
+        App\Filter\IntVal<br/>
         App\Filter\Null (if nullable)<br/>
     </td>
 </tr>

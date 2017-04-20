@@ -647,7 +647,7 @@ class Column extends ArrayObject
             case 'int':
             case 'bigint':
                 if ($name == 'level' || $name == 'pos' || $name == 'count' || substr($name, -6) == '_count') {
-                    $this->addFilter('\App\Filter\Int');
+                    $this->addFilter('\App\Filter\IntVal');
                     $this->addFilter('\App\Filter\Abs');
                 } elseif ($name = 'id' || substr($name, -3) == '_id') {
                     $this->addFilter('\App\Filter\Id');
